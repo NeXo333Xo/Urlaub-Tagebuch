@@ -1,10 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
+import axios from "axios";
 
 function App() {
   const [count, setCount] = useState(0);
+
+  const [apiTest, setApiTest] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/memories/");
+        setApiTest(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <>
@@ -28,8 +43,26 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      {apiTest ? <MyComponent data={apiTest} /> : <p>Loading...</p>}
     </>
   );
 }
+
+const MyComponent = ({ data }) => {
+  return (
+    <div>
+      <h1>FastAPI</h1>
+      {data && (
+        <ul>
+          {data.map((item) => (
+            <li key={item.id}>
+              {item.id}: {item.title} - {item.description}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
 
 export default App;
